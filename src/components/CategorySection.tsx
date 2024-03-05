@@ -22,12 +22,12 @@ const CategorySection: React.FC = () => {
     ];
 
     return (
-        <section className="mt-20rfc 6">
+        <section className="mt-20 ">
             <div className="max-w-[1140px] mx-auto">
                 <div className="header">
                     <h3 className="font-bold text-xl mb-5">Featured Categories</h3>
                 </div>
-                <Slider {...settings}>
+                <Slider {...settings} className="testing-slider">
                     {category.map((item, index) => (
                         <div key={index} className="mb-4 rounded overflow-hidden border p-4">
                             <div className="text-center flex justify-center items-center flex-col">

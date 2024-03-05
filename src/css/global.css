@@ -2,12 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.slick-slide {
-    margin: 0 7px;
-
-}
-
-/* the parent */
-.slick-list {
-    margin: 0 -27px;
+.testing-slider .slick-slide {
+    margin: 0 7px; /* Contoh gaya khusus untuk .slick-slide di dalam .testing-slider */
 }

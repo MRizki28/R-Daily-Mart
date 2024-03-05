@@ -11,7 +11,15 @@ const CategorySection: React.FC = () => {
         infinite: true,
         speed: 500,
         slidesToShow: 4,
-        slidesToScroll: 1
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 768, 
+                settings: {
+                    slidesToShow: 2 
+                }
+            }
+        ]
     };
 
     const category = [
@@ -23,13 +31,13 @@ const CategorySection: React.FC = () => {
 
     return (
         <section className="mt-20 ">
-            <div className="max-w-[1140px] mx-auto">
+            <div className="max-w-[1140px] h-64 mx-auto">
                 <div className="header">
                     <h3 className="font-bold text-xl mb-5">Featured Categories</h3>
                 </div>
                 <Slider {...settings} className="testing-slider">
                     {category.map((item, index) => (
-                        <div key={index} className="mb-4 rounded overflow-hidden border p-4">
+                        <div key={index} className="rounded overflow-hidden border p-4">
                             <div className="text-center flex justify-center items-center flex-col">
                                 <img src={item.img} alt="product1" />
                                 <span className="mt-2">{item.title}</span>

@@ -3,5 +3,6 @@
 @tailwind utilities;
 
 .testing-slider .slick-slide {
-    margin: 0 7px; /* Contoh gaya khusus untuk .slick-slide di dalam .testing-slider */
+    margin: 0 7px; 
+    height: 100px;
 }

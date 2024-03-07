@@ -30,7 +30,7 @@ const CategorySection: React.FC = () => {
     ];
 
     return (
-        <section className="mt-20 ">
+        <section className="mt-20 p-3 ">
             <div className="max-w-[1140px] h-64 mx-auto">
                 <div className="header">
                     <h3 className="font-bold text-xl mb-5">Featured Categories</h3>

@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
 
     const settings = {
         dots: true,
-        autoplay: false,
+        autoplay: true,
         infinite: true,
         speed: 500,
         slidesToShow: 1,
@@ -15,7 +15,7 @@ const Hero: React.FC = () => {
     };
 
     return (
-        <section className="mt-8">
+        <section className="mt-8 p-3">
             <div className="max-w-[1140px] mx-auto">
                 <Slider {...settings} >
                     <div className="relative">

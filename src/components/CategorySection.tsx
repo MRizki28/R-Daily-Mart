@@ -12,6 +12,7 @@ const CategorySection: React.FC = () => {
         speed: 500,
         slidesToShow: 4,
         slidesToScroll: 1,
+        arrows: false,
         responsive: [
             {
                 breakpoint: 768, 

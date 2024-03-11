@@ -1,10 +1,10 @@
 import React from "react";
-import groceryBanner from "../assets/image/endsection1.png";
+import groceryBanner from "../../assets/image/endsection1.png";
 
 const EndSection: React.FC = () => {
     return (
         <section className="mt-5">
-            <div className="max-w-[1140px] h-96 mx-auto">
+            <div className="max-w-[1140px] h-56 mx-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="py-10 px-8 rounded bg-cover bg-center" style={{ backgroundImage: `url(${groceryBanner})` }}>
                         <div>

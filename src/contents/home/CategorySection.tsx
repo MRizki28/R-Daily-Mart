@@ -1,9 +1,9 @@
 import React from "react";
 import Slider from "react-slick"
-import category1 from "../assets/image/category1.jpg"
-import category2 from "../assets/image/category2.jpg"
-import category3 from "../assets/image/category3.jpg"
-import category4 from "../assets/image/category4.jpg"
+import category1 from "../../assets/image/category1.jpg"
+import category2 from "../../assets/image/category2.jpg"
+import category3 from "../../assets/image/category3.jpg"
+import category4 from "../../assets/image/category4.jpg"
 
 const CategorySection: React.FC = () => {
     const settings = {

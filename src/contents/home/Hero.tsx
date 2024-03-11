@@ -1,6 +1,6 @@
 import React from "react";
-import Slider1 from "../assets/image/slider1.jpg";
-import Slider2 from "../assets/image/slider2.jpg";
+import Slider1 from "../../assets/image/slider1.jpg";
+import Slider2 from "../../assets/image/slider2.jpg";
 import Slider from "react-slick";
 
 const Hero: React.FC = () => {

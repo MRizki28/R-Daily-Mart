@@ -1,9 +1,10 @@
 import React from "react";
 import Navbar from "../components/Navbar";
-import Hero from "../components/Hero";
-import CategorySection from "../components/CategorySection";
-import EndSection from "../components/EndSection";
+import Hero from "../contents/home/Hero";
+import CategorySection from "../contents/home/CategorySection";
+import EndSection from "../contents/home/EndSection";
 import Product from "../contents/home/Product";
+import Info from "../contents/home/Info";
 
 
 const Home: React.FC = () => {
@@ -14,6 +15,7 @@ const Home: React.FC = () => {
             <CategorySection></CategorySection>
             <EndSection></EndSection>
             <Product></Product>
+            <Info></Info>
         </>
 
     )

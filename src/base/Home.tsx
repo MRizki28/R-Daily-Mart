@@ -5,6 +5,7 @@ import CategorySection from "../contents/home/CategorySection";
 import EndSection from "../contents/home/EndSection";
 import Product from "../contents/home/Product";
 import Info from "../contents/home/Info";
+import Footer from "../components/Footer";
 
 
 const Home: React.FC = () => {
@@ -16,6 +17,7 @@ const Home: React.FC = () => {
             <EndSection></EndSection>
             <Product></Product>
             <Info></Info>
+            <Footer></Footer>
         </>
 
     )

@@ -7,8 +7,8 @@ import { LuRefreshCw } from "react-icons/lu";
 const Info: React.FC = () => {
     return (
         <section className="mt-9">
-            <div className="max-w-[1140px] h-64 mx-auto">
-                <div className="grid gap-3 grid-cols-1 p-3 lg:grid-cols-4 space-y-4 lg:space-y-0">
+            <div className="max-w-[1140px] mb-12 mx-auto">
+                <div className="grid gap-5 grid-cols-1 p-3 lg:grid-cols-4 ">
                     <div>
                         <div>
                             <FaRegClock className="w-11 h-full text-orange-500" />

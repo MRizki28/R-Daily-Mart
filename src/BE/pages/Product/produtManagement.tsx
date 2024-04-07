@@ -18,7 +18,14 @@ const ProductManagement: React.FC = () => {
     const [productData, setProductData] = React.useState<Product[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [totalPages, setTotalPages] = React.useState<number>(0);
+    const [getDataById, setGetDataById] = React.useState<Product | null>(null)
+    const [selectedFileName, setSelectedFileName] = React.useState<string>("");
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setSelectedFileName(e.target.files[0].name);
+        }
+    };
     const getAllData = async (page: number) => {
         try {
             const response = await axios.get(`http://localhost:3002/product?page=${page}`);
@@ -71,12 +78,25 @@ const ProductManagement: React.FC = () => {
         }
     };
 
+    const getDataId = async (id: string) => {
+        const response = await axios.get(`http://localhost:3002/product/get/${id}`)
+        const data = response.data.data
+        setGetDataById(data)
+        console.log(data)
+    }
+
+    const handleEdit = async (id: string) => {
+        setGetDataById(null);
+        setSelectedFileName("");
+        await getDataId(id)
+    }
+
 
     const handleDelete = async (id: string) => {
         try {
             const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
-            if (!confirmed) return; 
-    
+            if (!confirmed) return;
+
             const response = await axios.delete(`http://localhost:3002/product/delete/${id}`)
             if (response.data.code === 200) {
                 toast.success("Sukses delete data", {
@@ -85,7 +105,7 @@ const ProductManagement: React.FC = () => {
                         window.location.reload();
                     }
                 });
-    
+
                 getAllData(currentPage);
             } else {
                 toast.error("Failed delete")
@@ -95,7 +115,7 @@ const ProductManagement: React.FC = () => {
             console.log("Error:", error)
         }
     }
-    
+
     return (
         <>
             <ToastContainer />
@@ -137,24 +157,37 @@ const ProductManagement: React.FC = () => {
                                 <form onSubmit={submitForm(onSubmit)} className="">
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Name</label>
-                                        <input type="text" {...register("product_name", { required: true })} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
+                                        <input type="text" {...register("product_name", { required: true })} defaultValue={getDataById?.product_name} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
                                         {errors.product_name && <span className="text-red-500">Product name is required</span>}
                                     </div>
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Price</label>
-                                        <input type="number" {...register("price", { required: true })} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                        <input type="number" {...register("price", { required: true })} defaultValue={getDataById?.price} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                                         {errors.price && <span className="text-red-500">Price is required</span>}
                                     </div>
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Stok</label>
-                                        <input type="number" {...register("stok", { required: true })} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                        <input type="number" {...register("stok", { required: true })} defaultValue={getDataById?.stok} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                                         {errors.stok && <span className="text-red-500">Stok is required</span>}
                                     </div>
                                     <div className="mb-5">
-                                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Upload file</label>
-                                        <input type="file" {...register("product_image", { required: true })} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" aria-describedby="user_avatar_help" id="user_avatar" />
+                                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Image</label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                {...register("product_image", { required: true })}
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                aria-describedby="product_image_help"
+                                                id="product_image"
+                                                onChange={handleFileChange}
+                                            />
+                                            <span className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 py-2.5 px-4">
+                                                {selectedFileName ? selectedFileName : (getDataById?.product_image ? getDataById.product_image.split('\\').pop() : "Choose File")}
+                                            </span>
+                                        </div>
                                         {errors.product_image && <span className="text-red-500">Product image is required</span>}
                                     </div>
+
                                     <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">+</button>
                                 </form>
                             </div>
@@ -197,8 +230,12 @@ const ProductManagement: React.FC = () => {
                                                     {product.product_image}
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
+                                                    <button onClick={() => handleEdit(product.id)}>Edit</button>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
                                                     <button onClick={() => handleDelete(product.id)}>delete</button>
                                                 </td>
+
                                             </tr>
                                         ))}
                                     </tbody>

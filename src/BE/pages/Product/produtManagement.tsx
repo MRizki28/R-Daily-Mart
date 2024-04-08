@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaEye } from "react-icons/fa";
 
 interface Product {
     id: string;
@@ -69,6 +70,7 @@ const ProductManagement: React.FC = () => {
                 toast.error("Input tidak boleh kosong!");
             } else {
                 toast.success("Sukses tambah produk")
+                setSelectedFileName('');
             }
             console.log("Server response:", response.data);
             getAllData(currentPage);
@@ -90,7 +92,6 @@ const ProductManagement: React.FC = () => {
         setSelectedFileName("");
         await getDataId(id)
     }
-
 
     const handleDelete = async (id: string) => {
         try {
@@ -206,7 +207,7 @@ const ProductManagement: React.FC = () => {
                                             <th scope="col" className="px-6 py-3">
                                                 Stok
                                             </th>
-                                            <th scope="col" className="px-6 py-3">
+                                            <th scope="col" className="px-6 py-3 text-center">
                                                 Product Image
                                             </th>
                                             <th scope="col" className="px-6 py-3">
@@ -226,16 +227,16 @@ const ProductManagement: React.FC = () => {
                                                 <td className="px-6 py-4">
                                                     {product.stok}
                                                 </td>
-                                                <td className="px-6 py-4">
-                                                    {product.product_image}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <button onClick={() => handleEdit(product.id)}>Edit</button>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <button onClick={() => handleDelete(product.id)}>delete</button>
+                                                <td className="px-6 py-4 flex justify-center">
+                                                    <img className="w-[100px] h-[100px]" src={`http://localhost:3002/product/image/${product.product_image}`} >
+                                                    </img>
                                                 </td>
 
+                                                <td className="px-6 py-4 text-right space-x-4
+                                                ">
+                                                    <button onClick={() => handleEdit(product.id)}>Edit</button>
+                                                    <button onClick={() => handleDelete(product.id)}>delete</button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

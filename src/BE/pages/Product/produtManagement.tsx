@@ -144,19 +144,21 @@ const ProductManagement: React.FC = () => {
                 toast.success("Sukses update produk")
                 setSelectedFileName('');
                 console.log(response.data)
+                getAllData(currentPage)
             }
         } catch (error) {
             console.log("Error:", error);
         }
     }
 
-
     const handleUpdate = async () => {
         if (!getDataById) return;
         await updateData(getDataById.id);
     }
 
-
+    const handleBackToForm = () => {
+        window.location.reload()
+    };
     return (
         <>
             <ToastContainer />
@@ -239,7 +241,11 @@ const ProductManagement: React.FC = () => {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={handleUpdate} className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Update</button>
+                                            <div className="flex">
+                                                <button type="button" onClick={handleBackToForm} className="text-white flex  bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Kembali</button>
+                                                <button type="button" onClick={handleUpdate} className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Update</button>
+                                            </div>
+
                                         </div>
                                     )}
                                 </form>

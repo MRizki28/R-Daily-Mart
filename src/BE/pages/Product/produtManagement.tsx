@@ -27,6 +27,7 @@ const ProductManagement: React.FC = () => {
             setSelectedFileName(e.target.files[0].name);
         }
     };
+
     const getAllData = async (page: number) => {
         try {
             const response = await axios.get(`http://localhost:3002/product?page=${page}`);
@@ -117,6 +118,45 @@ const ProductManagement: React.FC = () => {
         }
     }
 
+    const updateData = async (id: string) => {
+        try {
+            const formData = new FormData();
+            const productName = document.getElementById("product_name") as HTMLInputElement;
+            const price = document.getElementById("price") as HTMLInputElement;
+            const stok = document.getElementById("stok") as HTMLInputElement;
+            const productImage = document.getElementById("product_image") as HTMLInputElement;
+
+            formData.append("product_name", productName.value);
+            formData.append("price", price.value);
+            formData.append("stok", stok.value);
+            if (productImage.files && productImage.files.length > 0) {
+                formData.append("product_image", productImage.files[0]);
+            }
+            const response = await axios.post(`http://localhost:3002/product/update/${id}`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            if (response.data.message === "Check your validation") {
+                toast.error("Input tidak boleh kosong!");
+            } else {
+                toast.success("Sukses update produk")
+                setSelectedFileName('');
+                console.log(response.data)
+            }
+        } catch (error) {
+            console.log("Error:", error);
+        }
+    }
+
+
+    const handleUpdate = async () => {
+        if (!getDataById) return;
+        await updateData(getDataById.id);
+    }
+
+
     return (
         <>
             <ToastContainer />
@@ -158,38 +198,50 @@ const ProductManagement: React.FC = () => {
                                 <form onSubmit={submitForm(onSubmit)} className="">
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Name</label>
-                                        <input type="text" {...register("product_name", { required: true })} defaultValue={getDataById?.product_name} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
+                                        <input type="text" {...register("product_name", { required: true })} defaultValue={getDataById?.product_name} id="product_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
                                         {errors.product_name && <span className="text-red-500">Product name is required</span>}
                                     </div>
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Price</label>
-                                        <input type="number" {...register("price", { required: true })} defaultValue={getDataById?.price} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                        <input type="number" {...register("price", { required: true })} defaultValue={getDataById?.price} id="price" placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                                         {errors.price && <span className="text-red-500">Price is required</span>}
                                     </div>
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Stok</label>
-                                        <input type="number" {...register("stok", { required: true })} defaultValue={getDataById?.stok} placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                        <input type="number" {...register("stok", { required: true })} defaultValue={getDataById?.stok} id="stok" placeholder="0" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
                                         {errors.stok && <span className="text-red-500">Stok is required</span>}
                                     </div>
-                                    <div className="mb-5">
-                                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Image</label>
-                                        <div className="relative">
-                                            <input
-                                                type="file"
-                                                {...register("product_image", { required: true })}
-                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                                aria-describedby="product_image_help"
-                                                id="product_image"
-                                                onChange={handleFileChange}
-                                            />
-                                            <span className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 py-2.5 px-4">
-                                                {selectedFileName ? selectedFileName : (getDataById?.product_image ? getDataById.product_image.split('\\').pop() : "Choose File")}
-                                            </span>
-                                        </div>
-                                        {errors.product_image && <span className="text-red-500">Product image is required</span>}
-                                    </div>
+                                    {getDataById === null ? (
+                                        <div>
+                                            <div className="mb-5">
+                                                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Image</label>
+                                                <input type="file"  {...register("product_image", { required: true })} name="product_image" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                                {errors.product_image && <span className="text-red-500">Product image is required</span>}
+                                            </div>
 
-                                    <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">+</button>
+                                            <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">+</button>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <div className="mb-5">
+                                                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Image</label>
+                                                <div className="relative">
+                                                    <input
+                                                        type="file"
+                                                        {...register("product_image", { required: true })}
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        aria-describedby="product_image_help"
+                                                        id="product_image"
+                                                        onChange={handleFileChange}
+                                                    />
+                                                    <span className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 py-2.5 px-4">
+                                                        {selectedFileName ? selectedFileName : (getDataById?.product_image ? getDataById.product_image.split('\\').pop() : "Choose File")}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={handleUpdate} className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Update</button>
+                                        </div>
+                                    )}
                                 </form>
                             </div>
                         </div>

@@ -3,13 +3,16 @@ import logo from './logo.svg';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import Home from './FE/base/Home';
-import Admin from './BE/Admin';
+import Prod from './BE/ProductManagement';
+import Product from './BE/ProductManagement';
+import TypeProduct from './BE/TypeProductManagement';
 
 function App() {
   return (
     <Routes>
       <Route path='/' element={<Home></Home>}></Route>
-      <Route path='/cms/admin' element={<Admin></Admin>}></Route>
+      <Route path='/cms/admin' element={<Product></Product>}></Route>
+      <Route path='/cms/typeproduct' element={<TypeProduct></TypeProduct>}></Route>
     </Routes>
   );
 }

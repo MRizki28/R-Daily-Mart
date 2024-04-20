@@ -5,32 +5,22 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye } from "react-icons/fa";
 
-interface Product {
+interface TypeProduct {
     id: string;
-    product_name: string;
-    price: number;
-    stok: number;
-    product_image: string;
+    type_product: string;
 }
 
 const TypeProductManagement: React.FC = () => {
     const { register, handleSubmit: submitForm, formState: { errors }, reset } = useForm();
-
-    const [productData, setProductData] = React.useState<Product[]>([]);
+    const [productData, setProductData] = React.useState<TypeProduct[]>([]);
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [getDataById, setGetDataById] = React.useState<Product | null>(null)
+    const [getDataById, setGetDataById] = React.useState<TypeProduct | null>(null)
     const [selectedFileName, setSelectedFileName] = React.useState<string>("");
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setSelectedFileName(e.target.files[0].name);
-        }
-    };
 
     const getAllData = async (page: number) => {
         try {
-            const response = await axios.get(`http://localhost:3002/product?page=${page}`);
+            const response = await axios.get(`http://localhost:3002/typeproduct?page=${page}`);
             if (response.data.message !== "Data not found") {
                 console.log(response.data);
                 setProductData(response.data.data.data);
@@ -55,24 +45,17 @@ const TypeProductManagement: React.FC = () => {
 
     const onSubmit = async (data: any) => {
         try {
-            const formData = new FormData();
-            formData.append("product_name", data.product_name);
-            formData.append("price", data.price);
-            formData.append("stok", data.stok);
-            if (data.product_image) {
-                formData.append("product_image", data.product_image[0]);
-            }
-            const response = await axios.post("http://localhost:3002/product", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+            const response = await axios.post("http://localhost:3002/typeproduct/create", {
+                type_product: data.type_product
             });
+
             if (response.data.message === "Check your validation") {
                 toast.error("Input tidak boleh kosong!");
             } else {
                 toast.success("Sukses tambah produk")
                 setSelectedFileName('');
             }
+
             console.log("Server response:", response.data);
             getAllData(currentPage);
             reset();
@@ -81,84 +64,6 @@ const TypeProductManagement: React.FC = () => {
         }
     };
 
-    const getDataId = async (id: string) => {
-        const response = await axios.get(`http://localhost:3002/product/get/${id}`)
-        const data = response.data.data
-        setGetDataById(data)
-        console.log(data)
-    }
-
-    const handleEdit = async (id: string) => {
-        setGetDataById(null);
-        setSelectedFileName("");
-        await getDataId(id)
-    }
-
-    const handleDelete = async (id: string) => {
-        try {
-            const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
-            if (!confirmed) return;
-
-            const response = await axios.delete(`http://localhost:3002/product/delete/${id}`)
-            if (response.data.code === 200) {
-                toast.success("Sukses delete data", {
-                    autoClose: 1000,
-                    onClose: () => {
-                        window.location.reload();
-                    }
-                });
-
-                getAllData(currentPage);
-            } else {
-                toast.error("Failed delete")
-            }
-            console.log(response);
-        } catch (error) {
-            console.log("Error:", error)
-        }
-    }
-
-    const updateData = async (id: string) => {
-        try {
-            const formData = new FormData();
-            const productName = document.getElementById("product_name") as HTMLInputElement;
-            const price = document.getElementById("price") as HTMLInputElement;
-            const stok = document.getElementById("stok") as HTMLInputElement;
-            const productImage = document.getElementById("product_image") as HTMLInputElement;
-
-            formData.append("product_name", productName.value);
-            formData.append("price", price.value);
-            formData.append("stok", stok.value);
-            if (productImage.files && productImage.files.length > 0) {
-                formData.append("product_image", productImage.files[0]);
-            }
-            const response = await axios.post(`http://localhost:3002/product/update/${id}`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-
-            if (response.data.message === "Check your validation") {
-                toast.error("Input tidak boleh kosong!");
-            } else {
-                toast.success("Sukses update produk")
-                setSelectedFileName('');
-                console.log(response.data)
-                getAllData(currentPage)
-            }
-        } catch (error) {
-            console.log("Error:", error);
-        }
-    }
-
-    const handleUpdate = async () => {
-        if (!getDataById) return;
-        await updateData(getDataById.id);
-    }
-
-    const handleBackToForm = () => {
-        window.location.reload()
-    };
     return (
         <>
             <ToastContainer />
@@ -200,11 +105,11 @@ const TypeProductManagement: React.FC = () => {
                                 <form onSubmit={submitForm(onSubmit)} className="">
                                     <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Jenis Product</label>
-                                        <input type="text" {...register("product_name", { required: true })} defaultValue={getDataById?.product_name} id="product_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
-                                        {errors.product_name && <span className="text-red-500">Jenis Product name is required</span>}
+                                        <input type="text" {...register("type_product", { required: true })} defaultValue={getDataById?.type_product} id="type_product" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
+                                        {errors.type_product && <span className="text-red-500">Jenis Product name is required</span>}
                                     </div>
                                     <div className="flex">
-                                        <button type="submit"  className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Simpan</button>
+                                        <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Simpan</button>
                                     </div>
                                 </form>
                             </div>
@@ -215,16 +120,10 @@ const TypeProductManagement: React.FC = () => {
                                     <thead className="text-xs text-gray-700 uppercase bg-gray-200 dark:bg-gray-700 dark:text-gray-400">
                                         <tr>
                                             <th scope="col" className="px-6 py-3">
-                                                Product name
+                                                No
                                             </th>
                                             <th scope="col" className="px-6 py-3">
-                                                Price
-                                            </th>
-                                            <th scope="col" className="px-6 py-3">
-                                                Stok
-                                            </th>
-                                            <th scope="col" className="px-6 py-3 text-center">
-                                                Product Image
+                                                Type Product
                                             </th>
                                             <th scope="col" className="px-6 py-3">
                                                 <span className="sr-only">Edit</span>
@@ -232,26 +131,17 @@ const TypeProductManagement: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {productData.map((product, index) => (
+                                        {productData.map((typeproduct, index) => (
                                             <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    {product.product_name}
+                                                    {index + 1}
                                                 </th>
-                                                <td className="px-6 py-4">
-                                                    {product.price}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {product.stok}
-                                                </td>
-                                                <td className="px-6 py-4 flex justify-center">
-                                                    <img className="w-[100px] h-[100px]" src={`http://localhost:3002/product/image/${product.product_image}`} >
-                                                    </img>
-                                                </td>
-
-                                                <td className="px-6 py-4 text-right space-x-4
-                                                ">
-                                                    <button onClick={() => handleEdit(product.id)}>Edit</button>
-                                                    <button onClick={() => handleDelete(product.id)}>delete</button>
+                                                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    {typeproduct.type_product}
+                                                </th>
+                                                <td className="px-6 py-4 text-right space-x-4">
+                                                    <button >Edit</button>
+                                                    <button >delete</button>
                                                 </td>
                                             </tr>
                                         ))}

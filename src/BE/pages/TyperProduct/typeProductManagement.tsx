@@ -64,6 +64,48 @@ const TypeProductManagement: React.FC = () => {
         }
     };
 
+    const getDataId = async (id: string) => {
+        const response = await axios.get(`http://localhost:3002/typeproduct/get/${id}`)
+        const data = response.data.data
+        setGetDataById(data)
+        console.log(data)
+    }
+
+    const handleEdit = async (id: string) => {
+        console.log(id)
+        setGetDataById(null)
+        setSelectedFileName("");
+        await getDataId(id)
+    }
+
+    const updateData = async ( id: string) => {
+        try {
+            const typeProduct = document.getElementById("type_product") as HTMLInputElement;
+            const response = await axios.post(`http://localhost:3002/typeproduct/update/${id}`, {
+                type_product: typeProduct.value
+            });
+    
+            if (response.data.message === "Check your validation") {
+                toast.error("Input tidak boleh kosong!");
+            } else {
+                toast.success("Sukses update type product");
+                getAllData(currentPage);
+            }
+        } catch (error) {
+            console.log("Error:", error);
+        }
+    };
+    
+
+    const handleUpdate = async () => {
+        if (!getDataById) return
+        await updateData(getDataById.id);;
+    }
+
+    const handleBackToForm = () => {
+        window.location.reload()
+    };
+
     return (
         <>
             <ToastContainer />
@@ -108,9 +150,17 @@ const TypeProductManagement: React.FC = () => {
                                         <input type="text" {...register("type_product", { required: true })} defaultValue={getDataById?.type_product} id="type_product" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
                                         {errors.type_product && <span className="text-red-500">Jenis Product name is required</span>}
                                     </div>
-                                    <div className="flex">
-                                        <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Simpan</button>
-                                    </div>
+                                    {getDataById === null ? (
+                                        <div className="flex">
+                                            <button type="submit" className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Simpan</button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex">
+                                            <button type="button" onClick={handleBackToForm} className="text-white flex  bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Kembali</button>
+                                            <button type="button" onClick={handleUpdate} className="text-white flex ml-auto bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Update</button>
+                                        </div>
+                                    )}
+
                                 </form>
                             </div>
                         </div>
@@ -140,7 +190,7 @@ const TypeProductManagement: React.FC = () => {
                                                     {typeproduct.type_product}
                                                 </th>
                                                 <td className="px-6 py-4 text-right space-x-4">
-                                                    <button >Edit</button>
+                                                    <button onClick={() => handleEdit(typeproduct.id)}>Edit</button>
                                                     <button >delete</button>
                                                 </td>
                                             </tr>

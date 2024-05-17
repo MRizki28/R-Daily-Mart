@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -16,7 +16,7 @@ const TypeProductManagement: React.FC = () => {
     const [currentPage, setCurrentPage] = React.useState<number>(1);
     const [totalPages, setTotalPages] = React.useState<number>(0);
     const [getDataById, setGetDataById] = React.useState<TypeProduct | null>(null)
-    const [selectedFileName, setSelectedFileName] = React.useState<string>("");
+    // const [selectedFileName, setSelectedFileName] = React.useState<string>("");
 
     const getAllData = async (page: number) => {
         try {
@@ -31,16 +31,27 @@ const TypeProductManagement: React.FC = () => {
         }
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
         getAllData(currentPage);
     }, [currentPage]);
 
+    useEffect(() => {
+        if (currentPage > 1 && productData.length === 0) {
+            setCurrentPage((prevPage) => prevPage - 1);
+        }
+    }, [productData]);
+
+
     const handlePrevPage = () => {
-        setCurrentPage((prevPage) => prevPage - 1);
+        if (currentPage > 1) {
+            setCurrentPage((prevPage) => prevPage - 1);
+        }
     };
 
     const handleNextPage = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
+        if (currentPage < totalPages) {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
     };
 
     const onSubmit = async (data: any) => {
@@ -53,7 +64,6 @@ const TypeProductManagement: React.FC = () => {
                 toast.error("Input tidak boleh kosong!");
             } else {
                 toast.success("Sukses tambah produk")
-                setSelectedFileName('');
             }
 
             console.log("Server response:", response.data);
@@ -74,17 +84,16 @@ const TypeProductManagement: React.FC = () => {
     const handleEdit = async (id: string) => {
         console.log(id)
         setGetDataById(null)
-        setSelectedFileName("");
         await getDataId(id)
     }
 
-    const updateData = async ( id: string) => {
+    const updateData = async (id: string) => {
         try {
             const typeProduct = document.getElementById("type_product") as HTMLInputElement;
             const response = await axios.post(`http://localhost:3002/typeproduct/update/${id}`, {
                 type_product: typeProduct.value
             });
-    
+
             if (response.data.message === "Check your validation") {
                 toast.error("Input tidak boleh kosong!");
             } else {
@@ -95,11 +104,33 @@ const TypeProductManagement: React.FC = () => {
             console.log("Error:", error);
         }
     };
-    
+
+    const deleteData = async (id: string) => {
+        try {
+            const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
+            if (!confirmed) return;
+            const response = await axios.delete(`http://localhost:3002/typeproduct/delete/${id}`)
+            if (response.data.message == "Success delete") {
+                toast.success("Sukses delete data")
+                setProductData(prevData => prevData.filter(item => item.id !== id));
+                getAllData(currentPage);
+            } else {
+                toast.error("Failed delete data")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
 
     const handleUpdate = async () => {
         if (!getDataById) return
         await updateData(getDataById.id);;
+    }
+
+    const handleDelete = async (id: string) => {
+        console.log('delete', id)
+        await deleteData(id)
     }
 
     const handleBackToForm = () => {
@@ -191,7 +222,7 @@ const TypeProductManagement: React.FC = () => {
                                                 </th>
                                                 <td className="px-6 py-4 text-right space-x-4">
                                                     <button onClick={() => handleEdit(typeproduct.id)}>Edit</button>
-                                                    <button >delete</button>
+                                                    <button onClick={() => handleDelete(typeproduct.id)}>delete</button>
                                                 </td>
                                             </tr>
                                         ))}

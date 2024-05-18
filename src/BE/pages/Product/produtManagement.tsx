@@ -1,30 +1,44 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaEye } from "react-icons/fa";
+import Select from 'react-select'
+
 
 interface Product {
     id: string;
+    id_type_product: string;
     product_name: string;
     price: number;
     stok: number;
     product_image: string;
 }
 
+interface TypeProduct {
+    value: string;
+    label: string;
+}
+
+
 const ProductManagement: React.FC = () => {
-    const { register, handleSubmit: submitForm, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit: submitForm, formState: { errors }, reset, setValue } = useForm();
 
-    const [productData, setProductData] = React.useState<Product[]>([]);
-    const [currentPage, setCurrentPage] = React.useState<number>(1);
-    const [totalPages, setTotalPages] = React.useState<number>(0);
-    const [getDataById, setGetDataById] = React.useState<Product | null>(null)
-    const [selectedFileName, setSelectedFileName] = React.useState<string>("");
+    const [productData, setProductData] = useState<Product[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalPages, setTotalPages] = useState<number>(0);
+    const [getDataById, setGetDataById] = useState<Product | null>(null)
+    const [typePoductData, setTypeProductData] = useState<TypeProduct[]>([]);
+    const [selectedTypeProductId, setSelectedTypeProductId] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: any) => {
         if (e.target.files && e.target.files.length > 0) {
-            setSelectedFileName(e.target.files[0].name);
+            const file = e.target.files[0];
+            const url = URL.createObjectURL(file);
+            setImageUrl(url);
+            setValue("img_menu", e.target.value);
         }
     };
 
@@ -56,22 +70,26 @@ const ProductManagement: React.FC = () => {
     const onSubmit = async (data: any) => {
         try {
             const formData = new FormData();
+            formData.append("id_type_product", selectedTypeProductId ?? "");
             formData.append("product_name", data.product_name);
             formData.append("price", data.price);
             formData.append("stok", data.stok);
             if (data.product_image) {
                 formData.append("product_image", data.product_image[0]);
             }
-            const response = await axios.post("http://localhost:3002/product", formData, {
+
+            console.log(selectedTypeProductId)
+            const response = await axios.post("http://localhost:3002/product/create", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
+
+            console.log(response)
             if (response.data.message === "Check your validation") {
                 toast.error("Input tidak boleh kosong!");
             } else {
                 toast.success("Sukses tambah produk")
-                setSelectedFileName('');
             }
             console.log("Server response:", response.data);
             getAllData(currentPage);
@@ -85,14 +103,33 @@ const ProductManagement: React.FC = () => {
         const response = await axios.get(`http://localhost:3002/product/get/${id}`)
         const data = response.data.data
         setGetDataById(data)
+        setSelectedTypeProductId(data.id_type_product);
         console.log(data)
+        if (data.product_image) {
+            const fileUrl = `http://localhost:3002/product/image/${data.product_image}`;
+            const fileName = fileUrl.split('/').pop();
+
+            if (fileName) {
+                const blob = await fetch(fileUrl).then(response => response.blob());
+                console.log('disini blob', blob);
+
+                const file = new File([blob], fileName);
+                const fileList = new DataTransfer();
+                fileList.items.add(file);
+
+                if (fileInputRef.current) {
+                    fileInputRef.current.files = fileList.files;
+                    setImageUrl(URL.createObjectURL(file));
+                }
+            }
+        }
     }
 
     const handleEdit = async (id: string) => {
         setGetDataById(null);
-        setSelectedFileName("");
-        await getDataId(id)
-    }
+        setImageUrl("");
+        await getDataId(id);
+    };
 
     const handleDelete = async (id: string) => {
         try {
@@ -117,7 +154,6 @@ const ProductManagement: React.FC = () => {
             console.log("Error:", error)
         }
     }
-
     const updateData = async (id: string) => {
         try {
             const formData = new FormData();
@@ -126,6 +162,7 @@ const ProductManagement: React.FC = () => {
             const stok = document.getElementById("stok") as HTMLInputElement;
             const productImage = document.getElementById("product_image") as HTMLInputElement;
 
+            formData.append("id_type_product", selectedTypeProductId ?? "");
             formData.append("product_name", productName.value);
             formData.append("price", price.value);
             formData.append("stok", stok.value);
@@ -138,11 +175,12 @@ const ProductManagement: React.FC = () => {
                 },
             });
 
+            console.log('response ServerResponse', response)
+
             if (response.data.message === "Check your validation") {
                 toast.error("Input tidak boleh kosong!");
             } else {
                 toast.success("Sukses update produk")
-                setSelectedFileName('');
                 console.log(response.data)
                 getAllData(currentPage)
             }
@@ -159,6 +197,28 @@ const ProductManagement: React.FC = () => {
     const handleBackToForm = () => {
         window.location.reload()
     };
+
+    const getDataTypeProduct = async () => {
+        try {
+            const response = await axios.get('http://localhost:3002/typeproduct')
+            const responseData = await response.data.data
+            if (responseData !== undefined) {
+                const results = responseData.data.map((data: any) => ({
+                    value: data.id,
+                    label: data.type_product
+                }))
+                setTypeProductData(results)
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    useEffect(() => {
+        getDataTypeProduct()
+    }, [])
+
+
     return (
         <>
             <ToastContainer />
@@ -199,6 +259,24 @@ const ProductManagement: React.FC = () => {
                             <div>
                                 <form onSubmit={submitForm(onSubmit)} className="">
                                     <div className="mb-5">
+                                        <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Type Product</label>
+                                        <Select
+                                            {...register("id_type_product", { required: true })}
+                                            options={typePoductData}
+                                            value={selectedTypeProductId ? typePoductData.find(item => item.value === selectedTypeProductId) : null}
+                                            id="id_type_product"
+                                            onChange={(selectedOption) => {
+                                                if (selectedOption) {
+                                                    const { value } = selectedOption;
+                                                    setSelectedTypeProductId(value);
+                                                    setValue("id_type_product", value);
+                                                }
+                                            }}
+                                        />
+
+                                        {!selectedTypeProductId && errors.id_type_product && <span className="text-red-500">Jenis product is required</span>}
+                                    </div>
+                                    <div className="mb-5">
                                         <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Name</label>
                                         <input type="text" {...register("product_name", { required: true })} defaultValue={getDataById?.product_name} id="product_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Rice" />
                                         {errors.product_name && <span className="text-red-500">Product name is required</span>}
@@ -226,20 +304,20 @@ const ProductManagement: React.FC = () => {
                                     ) : (
                                         <div>
                                             <div className="mb-5">
-                                                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Product Image</label>
-                                                <div className="relative">
-                                                    <input
-                                                        type="file"
-                                                        {...register("product_image", { required: true })}
-                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                                        aria-describedby="product_image_help"
+                                                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-white">Gambar Produk</label>
+                                                <div className="">
+                                                    <input type="file"  {...register("product_image", { required: true })} name="product_image"
                                                         id="product_image"
                                                         onChange={handleFileChange}
-                                                    />
-                                                    <span className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 py-2.5 px-4">
-                                                        {selectedFileName ? selectedFileName : (getDataById?.product_image ? getDataById.product_image.split('\\').pop() : "Choose File")}
-                                                    </span>
+                                                        ref={fileInputRef}
+                                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                                                    {errors.product_image && <span className="text-red-500">Product image is required</span>}
                                                 </div>
+                                                {imageUrl && (
+                                                    <div className="mt-4">
+                                                        <img src={imageUrl} alt="Produk yang Dipilih" className="max-w-xs h-auto rounded-lg" />
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex">
                                                 <button type="button" onClick={handleBackToForm} className="text-white flex  bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Kembali</button>

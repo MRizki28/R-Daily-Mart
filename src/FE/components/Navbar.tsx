@@ -15,6 +15,10 @@ const Navbar: React.FC = () => {
         console.log(cartData)
     }
 
+    const refreshCartData = async () => {
+        await getDataCart(setCartData);
+    }
+
     return (
         <>
             <div className="border border-b-2">
@@ -67,7 +71,7 @@ const Navbar: React.FC = () => {
                 </div>
 
             </div>
-            <Cart cartData={cartData} ></Cart>
+            <Cart cartData={cartData} refreshCartData={refreshCartData} ></Cart>
         </>
 
     )

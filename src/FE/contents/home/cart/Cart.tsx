@@ -1,15 +1,33 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { IoCartOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 interface CartProps {
     cartData: any[];
+    refreshCartData: () => void;
 }
 
-const Cart: React.FC<CartProps> = ({ cartData }) => {
+const Cart: React.FC<CartProps> = ({ cartData, refreshCartData }) => {
 
     let totalPrice = 0
     for (let i = 0; i < cartData.length; i++) {
         totalPrice += cartData[i].typeProduct.price;
+    }
+
+    const handleDelete = async (id: string) => {
+        try {
+            const response = await axios.delete(`http://localhost:3002/cart/delete/${id}`)
+            if (response.data.code === 200) {
+                toast.success("Sukses delete data");
+                refreshCartData();
+            } else {
+                toast.error("Failed delete")
+            }
+            console.log(response);
+        } catch (error) {
+            console.log("Error:", error)
+        }
     }
 
     return (
@@ -22,7 +40,7 @@ const Cart: React.FC<CartProps> = ({ cartData }) => {
                 <div className="cart-body">
                     {cartData.length === 0 ? (
                         <div className="text-center py-4 flex justify-center items-center flex-col">
-                            <IoCartOutline className="text-4xl text-orange-500"/>
+                            <IoCartOutline className="text-4xl text-orange-500" />
                             <h3 className="font-bold">Wah Keranjang Belanjaanmu Kosong</h3>
                         </div>
                     ) : (
@@ -57,7 +75,7 @@ const Cart: React.FC<CartProps> = ({ cartData }) => {
                                                 {item.typeProduct.price}
                                             </td>
                                             <td className="px-6 py-4">
-                                                <a href="#" className="font-medium text-red-600 dark:text-red-500 hover:underline">Remove</a>
+                                                <a href="#" onClick={() => handleDelete(item.id)} className="font-medium text-red-600 dark:text-red-500 hover:underline">Remove</a>
                                             </td>
                                         </tr>
                                     ))}

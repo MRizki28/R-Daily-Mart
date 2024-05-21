@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Select from 'react-select'
+import { axiosInstance } from "../../../helper/apiInstance"
 
 
 interface Product {
@@ -78,7 +79,7 @@ const ProductManagement: React.FC = () => {
             }
 
             console.log(selectedTypeProductId)
-            const response = await axios.post("http://localhost:3002/product/create", formData, {
+            const response = await axiosInstance.post("http://localhost:3002/product/create", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -135,7 +136,7 @@ const ProductManagement: React.FC = () => {
             const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
             if (!confirmed) return;
 
-            const response = await axios.delete(`http://localhost:3002/product/delete/${id}`)
+            const response = await axiosInstance.delete(`http://localhost:3002/product/delete/${id}`)
             if (response.data.code === 200) {
                 toast.success("Sukses delete data", {
                     autoClose: 1000,
@@ -168,7 +169,7 @@ const ProductManagement: React.FC = () => {
             if (productImage.files && productImage.files.length > 0) {
                 formData.append("product_image", productImage.files[0]);
             }
-            const response = await axios.post(`http://localhost:3002/product/update/${id}`, formData, {
+            const response = await axiosInstance.post(`http://localhost:3002/product/update/${id}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },

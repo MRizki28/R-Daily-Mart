@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { FaEye } from "react-icons/fa";
-
+import { axiosInstance } from "../../../helper/apiInstance"
 interface TypeProduct {
     id: string;
     type_product: string;
@@ -55,7 +55,7 @@ const TypeProductManagement: React.FC = () => {
 
     const onSubmit = async (data: any) => {
         try {
-            const response = await axios.post("http://localhost:3002/typeproduct/create", {
+            const response = await axiosInstance.post("http://localhost:3002/typeproduct/create", {
                 type_product: data.type_product
             });
 
@@ -89,7 +89,7 @@ const TypeProductManagement: React.FC = () => {
     const updateData = async (id: string) => {
         try {
             const typeProduct = document.getElementById("type_product") as HTMLInputElement;
-            const response = await axios.post(`http://localhost:3002/typeproduct/update/${id}`, {
+            const response = await axiosInstance.post(`http://localhost:3002/typeproduct/update/${id}`, {
                 type_product: typeProduct.value
             });
 
@@ -108,7 +108,7 @@ const TypeProductManagement: React.FC = () => {
         try {
             const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data ini?");
             if (!confirmed) return;
-            const response = await axios.delete(`http://localhost:3002/typeproduct/delete/${id}`)
+            const response = await axiosInstance.delete(`http://localhost:3002/typeproduct/delete/${id}`)
             if (response.data.message == "Success delete") {
                 toast.success("Sukses delete data")
                 setProductData(prevData => prevData.filter(item => item.id !== id));
